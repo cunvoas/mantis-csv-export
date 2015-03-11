@@ -1,0 +1,21 @@
+SELECT MB.id,MP.name,MUR.username as Rapporteur,MUA.username as 'Assigne',
+    %priority%,
+    %severity%,
+    %view_state%,
+    %status%,
+    DATE_FORMAT(MB.date_submitted, '%Y-%m-%d') as dateAjout,
+    DATE_FORMAT(MB.last_updated, '%Y-%m-%d')as DateModif,
+    MB.summary,
+    %resolution%,
+    %reproducibility%,
+    MB.category,
+    %projection%,
+    %eta%,
+    MB.duplicate_id
+    %CUSTOM_COLUMNS%
+FROM %PREFIX%mantis_bug_table MB 
+    inner join %PREFIX%mantis_project_table MP on MB.project_id=MP.id
+    inner join %PREFIX%mantis_user_table MUR on MUR.id=MB.reporter_id
+    left join %PREFIX%mantis_user_table MUA on MUA.id=MB.handler_id
+    where MB.project_id=668
+order by MB.id desc

@@ -1,0 +1,41 @@
+SELECT MB.id,MP.name,MUR.username as Rapporteur,MUA.username as 'Assigne',
+    CASE MB.priority WHEN '20' THEN 'BASSE' WHEN '30' THEN 'NORMALE' WHEN '40' THEN 'HAUTE' WHEN '50' THEN 'URGENTE' ELSE 'NON DEFINI '||MB.priority END as Priorite,
+    CASE MB.severity WHEN '50' THEN 'MINEUR' WHEN '60' THEN 'MAJEUR' WHEN '80' THEN 'BLOQUANT' ELSE 'NON DEFINI '||MB.severity END as Severite,
+    CASE MB.view_state WHEN '10' THEN 'PUBLIC' WHEN '50' THEN 'PRIVE' ELSE 'NON DEFINI '||MB.view_state END as AfficherEtat,
+    CASE MB.status WHEN '10' THEN 'NOUVEAU' WHEN '11' THEN 'A ARBITRER' WHEN '30' THEN 'CONFIRME' WHEN '40' THEN 'PRIS EN CHARGE' WHEN '80' THEN 'LIVRE' WHEN '90' THEN 'FERME' ELSE 'NON DEFINI '||MB.status END as Etat,
+    DATE_FORMAT(MB.date_submitted, '%Y-%m-%d') as dateAjout,
+    DATE_FORMAT(MB.last_updated, '%Y-%m-%d')as DateModif,
+    MB.summary,
+    CASE MB.resolution WHEN '10' THEN 'Ouvert' WHEN '20' THEN 'resolu' WHEN '60' THEN 'doublon' WHEN '70' THEN 'pas un bogue' WHEN '90' THEN 'ne sera pas resolu' ELSE 'NON DEFINI '||MB.resolution END as resolution,
+    CASE MB.reproducibility WHEN '10' THEN 'toujours' WHEN '30' THEN 'quelques fois' WHEN '50' THEN 'aleatoire' WHEN '70' THEN 'n''a pas essaye' WHEN '90' THEN 'impossible a reproduire' ELSE 'NON DEFINI '||MB.reproducibility END as reproducibilite,
+    MB.category,
+    CASE MB.projection WHEN '10' THEN 'aucun' WHEN '30' THEN 'cosmetique' WHEN '50' THEN 'correction mineure' WHEN '70' THEN 'correction majeure' WHEN '90' THEN 'reconception' ELSE 'NON DEFINI '||MB.projection END as projection,
+    CASE MB.eta WHEN '10' THEN 'aucun' WHEN '20' THEN '< 1j' WHEN '30' THEN '2-3j' WHEN '40' THEN '<1 sem' WHEN '50' THEN '<1 mois' WHEN '60' THEN '>1 mois' ELSE 'NON DEFINI '||MB.eta END as eta,
+    MB.duplicate_id,
+    --MB.os,MB.platform,MB.version,MB.fixed_in_version,MB.target_version,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=92 and bug_id=MB.id) as Alerte,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=79 and bug_id=MB.id) as Origine,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=83 and bug_id=MB.id) as Domaine,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=78 and bug_id=MB.id) as SousDomaine,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=84 and bug_id=MB.id) as Segment,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=97 and bug_id=MB.id) as SuiviPar,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=91 and bug_id=MB.id) as ClientConcerne,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=93 and bug_id=MB.id) as SIconcerne,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=94 and bug_id=MB.id) as Perimetre,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=95 and bug_id=MB.id) as TypeAction,
+    (SELECT case value WHEN 0 THEN '' ELSE DATE_FORMAT(FROM_UNIXTIME(value), '%Y-%m-%d') END FROM %PREFIX%mantis_custom_field_string_table where field_id=80 and bug_id=MB.id) as DatePrevues,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=81 and bug_id=MB.id) as ChargePrevue ,
+    (SELECT case value WHEN 0 THEN '' ELSE DATE_FORMAT(FROM_UNIXTIME(value), '%Y-%m-%d') END FROM %PREFIX%mantis_custom_field_string_table where field_id=86 and bug_id=MB.id) as DateCorrigee,
+    (SELECT case value WHEN 0 THEN '' ELSE DATE_FORMAT(FROM_UNIXTIME(value), '%Y-%m-%d') END FROM %PREFIX%mantis_custom_field_string_table where field_id=85 and bug_id=MB.id) as DateReel,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=82 and bug_id=MB.id) as ChargeReel ,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=87 and bug_id=MB.id) as CorrespMOA ,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=89 and bug_id=MB.id) as CorrespMetier,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=88 and bug_id=MB.id) as CorrespMOE,
+    (SELECT CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END FROM %PREFIX%mantis_custom_field_string_table where field_id=90 and bug_id=MB.id) as DocAssoc,
+    (SELECT value FROM %PREFIX%mantis_custom_field_string_table where field_id=96 and bug_id=MB.id) as Controle
+FROM %PREFIX%mantis_bug_table MB 
+    inner join %PREFIX%mantis_project_table MP on MB.project_id=MP.id
+    inner join %PREFIX%mantis_user_table MUR on MUR.id=MB.reporter_id
+    left join %PREFIX%mantis_user_table MUA on MUA.id=MB.handler_id
+    where MB.project_id=668
+order by MB.id desc
