@@ -23,7 +23,17 @@ public class CsvReport {
 		CSVPrinter csvPrinter = null;
 		
 		try {
-			CSVFormat format = CSVFormat.EXCEL.withHeader(resultSet);
+			Character delimiter = Character.valueOf(',');
+			Character escape = Character.valueOf('"');
+			
+			
+			CSVFormat format = CSVFormat.DEFAULT
+									.withHeader(resultSet)
+									.withDelimiter(delimiter)
+									.withEscape(escape)
+									;
+			
+			//CSVFormat format = CSVFormat.EXCEL.withHeader(resultSet).withEscape(Character.valueOf('"'));
 			csvOut = FileUtils.openOutputStream(csvFileOut, true);
 			csvPrinter = new CSVPrinter(new PrintWriter(csvOut), format);
 			

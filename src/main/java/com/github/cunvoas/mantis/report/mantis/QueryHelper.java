@@ -107,9 +107,10 @@ public class QueryHelper {
 			
 		} else if ("date".equals(items[1].toLowerCase())) {
 			sb.append("case value WHEN 0 THEN '' ELSE DATE_FORMAT(FROM_UNIXTIME(value), '%Y-%m-%d') END");
-		} else if ("checkbox".equals(items[1].toLowerCase())) {
 			
-			sb.append("CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END");
+		} else if ("checkbox".equals(items[1].toLowerCase())) {
+			//sb.append("CASE WHEN INSTR(value, '|')>0 THEN '' ELSE value END");
+			sb.append("replace(value, '|', ' + ')");
 			
 		} else {
 			throw new RuntimeException("custom colum config error");
